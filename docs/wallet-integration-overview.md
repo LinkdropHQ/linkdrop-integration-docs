@@ -2,9 +2,9 @@
 
 ## What is Linkdrop?
 
-Linkdrop enables sending crypto tokens via shareable URLs (claim links). A sender deposits tokens into an escrow smart contract and receives a claim link. The recipient opens the link and redeems tokens to their wallet — no need to know the recipient's address upfront.
+Linkdrop enables sending crypto tokens via shareable URLs (claim links). A sender deposits tokens into an escrow smart contract and generates a claim link. The recipient opens the link and redeems tokens to their wallet.
 
-**Supported tokens:** Native tokens (ETH, MATIC, AVAX, etc.), ERC20, ERC721, ERC1155
+**Supported tokens:** Native tokens (ETH, MATIC, AVAX, etc.), ERC20, ERC721, ERC1155  
 **Supported chains:** Base, Polygon, Optimism, Arbitrum, Avalanche (additional EVM chains can be added within days on request)
 
 ---
@@ -13,11 +13,10 @@ Linkdrop enables sending crypto tokens via shareable URLs (claim links). A sende
 
 | Component | Description |
 |-----------|-------------|
-| **Backend infrastructure** | Fully hosted by Linkdrop — the wallet does not need to deploy or maintain any servers |
-| **Escrow smart contracts** | Onchain contracts that hold tokens until claimed or refunded |
+| **Backend infrastructure** | Fully hosted by Linkdrop, the wallet does not need to deploy or maintain any servers |
+| **Escrow smart contracts** | Onchain contracts handling token distribution from senders to recipients |
 | **SDK** | Client-side library the wallet integrates to create and redeem claim links |
-| **API key** | Provided by Linkdrop for API authentication |
-| **Relayers** | Linkdrop sponsors all claim transactions — recipients don't pay gas and don't need to have any crypto to claim a link |
+| **Relayers** | Linkdrop sponsors all claim transactions, recipients don't pay gas and don't need to have any crypto to claim a link |
 | **Dashboard (Web UI)** | Web interface at [dashboard.linkdrop.io](https://dashboard.linkdrop.io) for businesses to create claim links in bulk |
 
 ### SDK Availability
@@ -32,7 +31,7 @@ Linkdrop enables sending crypto tokens via shareable URLs (claim links). A sende
 ### Fees
 
 - **Integration is free for wallets.** There are no costs to integrate or use the P2P send-via-link feature.
-- Linkdrop charges fees only to Dashboard (B2B) users who create bulk claim links via the web UI.
+- Linkdrop plans to charge fees only to Dashboard (B2B) users who create bulk claim links via the web UI.
 
 ---
 
@@ -46,18 +45,14 @@ A wallet user sends tokens to anyone by creating a shareable link. Each link has
 
 **Who creates links:** End users, directly in the wallet app.
 
-**User flow — Sender:**
+**Sender flow:**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ 1. User opens "Send via Link"                                   │
-│ 2. Selects token, chain, and enters amount                      │
-│ 3. Optionally adds a message (encrypted, max 140 chars)         │
-│ 4. Confirms deposit (on-chain tx or gasless signature)          │
-│ 5. Receives a claim link URL                                    │
-│ 6. Shares the link (messaging apps, share sheet, copy/paste)    │
-└─────────────────────────────────────────────────────────────────┘
-```
+ 1. User opens "Send via Link"                                   
+ 2. Selects token, chain, and enters amount                      
+ 3. Optionally adds a message (encrypted, max 140 chars)         
+ 4. Confirms deposit (on-chain tx or gasless signature)          
+ 5. Receives a claim link URL                                    
+ 6. Shares the link (messaging apps, share sheet, copy/paste)    
 
 *Screenshots from the Coinbase Wallet integration:*
 
@@ -69,70 +64,32 @@ A wallet user sends tokens to anyone by creating a shareable link. Each link has
 |:---:|:---:|
 | <img src="images/sender-share-sheet.png" width="200"> | <img src="images/sender-telegram-preview.png" width="200"> |
 
-**User flow — Receiver:**
+**Recipient flow:**
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ 1. Opens claim link (deep link / universal link into the app)   │
-│ 2. Sees token, amount, chain, sender, and optional message      │
-│ 3. Taps "Claim" → tokens are sent to their wallet address       │
-└─────────────────────────────────────────────────────────────────┘
-```
+1. Opens claim link (deep link / universal link into the app)   
+2. Sees token, amount, chain, sender, and optional message      
+3. Taps "Claim" → tokens are sent to their wallet address       
 
 | Claim screen | Success |
 |:---:|:---:|
 | <img src="images/receiver-claim.png" width="200"> | <img src="images/receiver-success.png" width="200"> |
 
-**Screens the wallet needs to build:**
-
-| Screen | Description |
-|--------|-------------|
-| **Send-via-link** | Token/chain picker → amount input → optional message → deposit confirmation → share link |
-| **Claim/redeem** | Display link details (token, amount, chain, sender, message) → claim button → success |
-| **Transaction details** | Claim link status, deposit/redeem operations, timestamps, tx hashes |
-| **Sender history** | List of all created claim links with current statuses |
-
+**Accessing claim link from the transaction history screen:**
 | Transaction history | Transaction details |
 |:---:|:---:|
 | <img src="images/sender-tx-history.png" width="200"> | <img src="images/sender-tx-detail.png" width="200"> |
 
 ### Mode 2: Dashboard Links (Redeem Only)
 
-Businesses and projects create claim links in bulk via the Linkdrop Dashboard web UI. The business approves the Linkdrop contract to transfer tokens on their behalf — tokens stay in the business's wallet until each link is individually claimed. Links are distributed to end users (e.g., via email campaigns, QR codes).
+Businesses and projects create claim links in bulk via the Linkdrop Dashboard web UI hosted at https://dashboard.linkdrop.io. 
+To support Dashboard Links the wallet only needs to implement the redeem side:
 
-**Who creates links:** Businesses using the Linkdrop Dashboard. Not the wallet user.
+**Recipient:**
 
-**The wallet only needs to support the redeem side:**
-
-**User flow — Receiver:**
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│ 1. User receives a claim link (email, QR code, social media)    │
-│ 2. Opens link → deep links into the wallet app                  │
-│ 3. Sees token, amount, and chain                                │
-│ 4. Taps "Claim" → tokens are sent to their wallet address       │
-└─────────────────────────────────────────────────────────────────┘
-```
-
-**Screens the wallet needs to build:**
-
-| Screen | Description |
-|--------|-------------|
-| **Claim/redeem** | Reuses the same redeem screen as P2P — no additional UI needed. The SDK detects the link type automatically. |
-
-### Shared Redeem Flow
-
-The claim/redeem screen is the same for both P2P and Dashboard links. The SDK detects the link type automatically and handles the differences internally. **You only need to build the redeem UI once** — it works for both modes out of the box.
-
-### Comparing Modes
-
-| | P2P Links | Dashboard Links |
-|---|-----------|-----------------|
-| **Effort** | 4 screens (send, claim, details, history) | 1 screen (claim) — reuses the same redeem screen as P2P |
-| **Who creates links** | Wallet end users | Businesses via Dashboard web UI |
-| **Value to users** | Send tokens to anyone without knowing their address | Receive tokens from campaigns, promotions, airdrops |
-| **Depends on the other mode?** | No — fully independent | No — fully independent |
+1. User receives a claim link (email, QR code, social media)    
+2. Opens link → deep links into the wallet app                  
+3. Sees token, amount, and chain                                
+4. Taps "Claim" → tokens are sent to their wallet address       
 
 ---
 
@@ -145,29 +102,28 @@ Sender (wallet user)            Linkdrop                         Receiver
   │                                │                                │
   │  1. Create claim link (SDK)    │                                │
   │ ─────────────────────────────> │                                │
-  │  ← claim link object          │                                │
+  │                                │                                │
   │                                │                                │
   │  2. Deposit tokens to escrow   │                                │
   │ ─────────────────────────────> │                                │
-  │  ← claim URL                  │                                │
   │                                │                                │
-  │  3. Share URL  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─>│
+  │                                │                                │
+  │  3. Share URL - ─ ─ ─ ─ ─ ─ - - ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─>│
   │                                │                                │
   │                                │  4. Open URL, see link details │
   │                                │ <──────────────────────────────│
-  │                                │  → token, amount, chain, etc.  │
+  │                                │                                │
   │                                │                                │
   │                                │  5. Claim to wallet address    │
   │                                │ <──────────────────────────────│
-  │                                │  → tokens sent to receiver     │
+  │                                │                                │
 ```
 
-**Lifecycle:** created → depositing → deposited → redeemed / refunded / cancelled
-
-- **deposited** — tokens locked in escrow, link is claimable
-- **redeemed** — receiver claimed the tokens
-- **refunded** — sender reclaimed after expiration (default: 15 days)
-- **cancelled** — sender cancelled before claim
+**Link statuses**
+- *deposited*: tokens locked in escrow, link is claimable
+- *redeemed*: receiver claimed the tokens
+- *refunded*: sender reclaimed after expiration (default: 15 days)
+- *cancelled*: sender cancelled before claim
 
 ### Dashboard Flow
 
@@ -176,27 +132,28 @@ Business (Dashboard UI)         Linkdrop                         Receiver
   │                                │                                │
   │  1. Create links in bulk       │                                │
   │ ─────────────────────────────> │                                │
+  │    ← claim URLs (CSV download) │                                │
   │                                │                                │
-  │  2. Approve tx (tokens stay    │
+  │  2. Approve tx (tokens stay    │                                │
   │     in business's wallet)      │                                │
   │ ─────────────────────────────> │                                │
-  │  ← claim URLs (CSV download)  │                                │
   │                                │                                │
-  │  3. Distribute URLs ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─>│
-  │     (email, QR, social, etc.)  │                                │
+  │                                │                                │
+  │  3. Distribute URLs  ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ - - >│
+  │     (emails, QRs, etc.)        │                                │
   │                                │                                │
   │                                │  4. Open URL, see link details │
   │                                │ <──────────────────────────────│
-  │                                │  → token, amount, chain, etc.  │
+  │                                │                                │
   │                                │                                │
   │                                │  5. Claim to wallet address    │
   │                                │ <──────────────────────────────│
-  │                                │  → tokens sent to receiver     │
+  │                                │                                │
 ```
 
 Dashboard links arrive already claimable — there is no deposit step to wait for. The SDK returns the same normalized statuses for both link types (`deposited`, `redeemed`, `cancelled`, etc.), so the wallet displays them the same way.
 
-Note: Steps 4–5 (the redeem flow) are identical for both P2P and Dashboard links. The SDK detects the link type automatically — the wallet only needs to build the redeem UI once.
+Note: Steps 4–5 (the redeem flow) are identical for both P2P and Dashboard links. The SDK detects the link type automatically, the wallet only needs to build the redeem UI once.
 
 ---
 
@@ -219,10 +176,12 @@ No. Linkdrop hosts all backend infrastructure. The wallet only integrates the SD
 Yes. Linkdrop can add support for any EVM chain within a couple of days on request.
 
 **What if the sender loses the claim URL?**
-The sender can regenerate it from the wallet (requires a signature). Claim URLs are never stored server-side.
+The sender can regenerate it from the wallet (requires a signature). Claim URLs are never stored server-side for p2p flows. 
+Dashboard stores claim links in encrypted format. The links can be deciphered by campaign creator. 
 
 **What happens if a link expires unclaimed?**
-Tokens are automatically refundable to the sender after expiration.
+Links created via SDK (p2p mode) are automatically refunded after expiration (Linkdrop relayer calls the escrow contract to clawback the tokens). 
+For links created via Dashboard, token always stay in the campaign creator wallet, there's no need to refund. The links simply don't work after expiration. 
 
 ---
 
@@ -230,7 +189,9 @@ Tokens are automatically refundable to the sender after expiration.
 
 - **Technical Reference:** [wallet-integration-technical.md](wallet-integration-technical.md) — architecture, security model, SDK code examples, API details
 - **SDK repository:** [github.com/LinkdropHQ/linkdrop-sdk](https://github.com/LinkdropHQ/linkdrop-sdk)
-- **Demo recordings:** [Sender flow](https://www.youtube.com/watch?v=YaVMo_PiQwY) · [Recipient flow](https://www.youtube.com/watch?v=MEUcuJQGLbg)
+- **Demo recordings:**
+  - [Sender flow](https://www.youtube.com/watch?v=YaVMo_PiQwY)
+  - [Recipient flow](https://www.youtube.com/watch?v=MEUcuJQGLbg)
 
 ---
 
