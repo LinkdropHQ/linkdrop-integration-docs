@@ -4,7 +4,7 @@ Documentation for integrating Linkdrop's send-via-link and claim link features i
 
 ## Contents
 
-- **[Wallet Integration Overview](docs/wallet-integration-overview.md)** — high-level flows, screens, SDK availability, and effort comparison
+- **[Wallet Integration Overview](docs/wallet-integration-overview.md)** — high-level overview and user flows
 - **[Technical Reference](docs/wallet-integration-technical.md)** — architecture, security model, API endpoints, contract addresses, and URL format
 
 ## Demo Videos
