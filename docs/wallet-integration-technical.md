@@ -28,7 +28,7 @@ For a high-level overview of flows, screens, and integration steps, see [wallet-
 
 ```
  ┌──────────┐     ┌────────────┐     ┌───────────┐     ┌──────────┐
- │  created  │────>│ depositing │────>│ deposited │────>│ redeemed │
+ │  created │────>│ depositing │────>│ deposited │────>│ redeemed │
  └──────────┘     └────────────┘     └───────────┘     └──────────┘
                                            │
                                            ├───────────>┌──────────┐
