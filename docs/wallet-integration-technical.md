@@ -280,7 +280,7 @@ For SDK initialization, usage examples, method reference, ClaimLink properties, 
 
 - **Integration Overview:** [wallet-integration-overview.md](wallet-integration-overview.md)
 - **Linkdrop Technical Description (blog):** [blog.linkdrop.io/linkdrop-technical-description](https://blog.linkdrop.io/linkdrop-technical-description-2ec43f718924)
-- **SDK repository & docs:** [github.com/LinkdropHQ/linkdrop-sdk](https://github.com/LinkdropHQ/linkdrop-sdk) · [README](https://github.com/LinkdropHQ/linkdrop-sdk/blob/main/README.md)
+- **SDK repository & docs:** [github.com/LinkdropHQ/linkdrop-sdk](https://github.com/LinkdropHQ/linkdrop-sdk) · [README](https://github.com/LinkdropHQ/linkdrop-sdk/blob/main/README.md) · [npm](https://www.npmjs.com/package/linkdrop-sdk)
 - **P2P contracts:** [github.com/LinkdropHQ/linkdrop-p2p-contracts](https://github.com/LinkdropHQ/linkdrop-p2p-contracts)
 - **Dashboard contracts:** [github.com/LinkdropHQ/linkdrop-contracts](https://github.com/LinkdropHQ/linkdrop-contracts)
 - **API documentation:** [escrow-docs.linkdrop.io](https://escrow-docs.linkdrop.io)

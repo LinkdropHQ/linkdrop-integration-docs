@@ -24,7 +24,7 @@ Linkdrop enables sending crypto tokens via shareable URLs (claim links). A sende
 
 | Language | Status |
 |----------|--------|
-| TypeScript | Available |
+| TypeScript | Available — [linkdrop-sdk on npm](https://www.npmjs.com/package/linkdrop-sdk) (latest: 3.15.2-beta) |
 | Go | Available |
 | Swift (iOS) | Can be ported on request (~1 month) |
 | Kotlin (Android) | Can be ported on request (~1 month) |
