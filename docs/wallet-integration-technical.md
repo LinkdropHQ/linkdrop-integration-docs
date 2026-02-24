@@ -10,17 +10,17 @@ For a high-level overview of flows, screens, and integration steps, see [wallet-
 
 **Create & Deposit:**
 
-1. SDK generates an secp256k1 keypair (standard Ethereum keypair). The private key becomes the **claim code** — the secret embedded in the claim URL that authorizes redemption.
+1. SDK generates an secp256k1 keypair (standard Ethereum keypair). The private key becomes the claim code — the secret embedded in the claim URL that authorizes redemption.
 2. SDK calls the Linkdrop API to register the transfer and receive fee information.
-3. Sender deposits tokens to the **escrow smart contract** (on-chain transaction or gasless EIP-3009 signature for supported stablecoins).
-4. SDK encodes the claim code, sender signature, transfer ID, chain ID, and version into a URL — the **claim link**.
-5. The claim URL is returned to the sender to share. It is **never stored server-side**.
+3. Sender deposits tokens to the escrow smart contract (on-chain transaction or gasless EIP-3009 signature for supported stablecoins).
+4. SDK encodes the claim code, sender signature, transfer ID, chain ID, and version into a URL — the claim link.
+5. The claim URL is returned to the sender to share. It is never stored server-side.
 
 **Redeem:**
 
 1. SDK parses the claim URL to extract the claim code and transfer metadata.
 2. SDK calls the P2P API to fetch link details (token, amount, chain, status, etc.).
-3. SDK generates a **receiver signature** from the claim code, proving the receiver possesses the link secret.
+3. SDK generates a receiver signature from the claim code, proving the receiver possesses the link secret.
 4. SDK calls the API `/redeem` endpoint with the receiver's wallet address and signature.
 5. Linkdrop's relayer submits the on-chain redeem transaction. The receiver pays no gas.
 
@@ -56,20 +56,20 @@ Default expiration: 15 days from creation (configurable).
 
 ### Dashboard Links
 
-**Create & Deposit (done by businesses via Dashboard web UI, not in the wallet):**
+**Create & Deposit (done by businesses via Dashboard web UI):**
 
 1. Business connects wallet on the [Linkdrop Dashboard](https://dashboard.linkdrop.io).
-2. Dashboard generates claim codes **client-side in the browser** — they are never sent to Linkdrop's server.
-3. Business submits an **approve transaction** granting the Linkdrop escrow contract permission to transfer tokens on their behalf. **Tokens stay in the campaign creator's wallet** until each link is claimed.
+2. Dashboard generates claim codes client-side in the browser, the codes are never sent to Linkdrop's server.
+3. Business submits an approve transaction granting the Linkdrop escrow contract permission to transfer tokens on their behalf. Tokens stay in the campaign creator's wallet until each link is claimed.
 4. Dashboard provides the claim links (e.g., as downloadable CSV) for the business to distribute via email, QR codes, etc.
 
-The wallet does **not** need to implement any of the above. It only needs to support the redeem side.
+The wallet does not need to implement any of the above. It only needs to support the redeem side.
 
 **Redeem (handled by the wallet):**
 
 1. SDK parses the claim URL. Dashboard links are detected automatically by the `src=d` query parameter.
 2. SDK derives a `transferId` from the claim code (`ethers.id(claimCode)` → use as private key → public address).
-3. SDK calls the **Dashboard API** to fetch link details (token, amount, chain, status, escrow address).
+3. SDK calls the Dashboard API to fetch link details (token, amount, chain, status, escrow address).
 4. SDK generates a receiver signature from the claim code.
 5. SDK calls the redeem endpoint with the receiver's wallet address and signature.
 6. Linkdrop's relayer submits the on-chain redeem transaction. The receiver pays no gas.
@@ -94,13 +94,13 @@ The claim code is generated client-side and encoded into the URL. Linkdrop's bac
 Tokens are held in audited escrow contracts, not in Linkdrop-controlled wallets. Contract operations:
 - **deposit** — sender locks tokens; only the sender's address is authorized
 - **redeem** — requires a valid receiver signature derived from the claim code
-- **refund** — sender can reclaim tokens after the expiration timestamp
+- **refund** — tokens are reclaimed by Linkdrop relayer after the link is expired
 - **cancel** — sender can cancel before the link is claimed
 
 For Dashboard links, the model is different: tokens stay in the campaign creator's wallet (via an approve pattern) and are transferred directly to the receiver on claim.
 
 ### Relayer (Gas Sponsorship)
-Linkdrop runs relayers that submit claim transactions on-chain and sponsor all gas fees. **Recipients don't pay gas and don't need to have any crypto to claim a link.** The relayer submits redeem and refund transactions, but the contract enforces all authorization checks — the relayer cannot steal funds, it can only relay valid signatures.
+Linkdrop runs relayers that submit claim transactions on-chain and sponsor all gas fees. Recipients don't pay gas and don't need to have any crypto to claim a link. The relayer submits redeem and refund transactions, but the contract enforces all authorization checks — the relayer cannot steal funds, it can only relay valid signatures.
 
 ### Contracts
 
@@ -155,69 +155,14 @@ For a high-level technical description of how Dashboard links work, see the [Lin
 
 ## API
 
-Linkdrop hosts the entire backend. The wallet does not need to run any infrastructure. Both P2P and Dashboard endpoints are served from a single API host.
+- **API documentation:** [escrow-docs.linkdrop.io](https://escrow-docs.linkdrop.io)  
+- **API URL:** `https://escrow-api.linkdrop.io`  
+- **Authentication:** All requests require a Bearer token in the `Authorization` header. The API key is provided by Linkdrop.  
 
-**Base URL:** `https://escrow-api.linkdrop.io`
-
-**Authentication:** All requests require a Bearer token in the `Authorization` header. The API key is provided by Linkdrop.
-
-### P2P Endpoints
-
-P2P endpoints use the chain name as a path parameter: `base`, `polygon`, `arbitrum`, `optimism`, `avalanche`.
-
-**Deposit:**
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v3/:chain/deposit` | POST | Register a direct deposit (ERC20/NATIVE). Body: sender, token, token_type, escrow, transfer_id, expiration, amount, tx_hash, total_amount, fee_amount, fee_authorization, fee_token, transaction_type (`tx` or `userOp`) |
-| `/v3/:chain/deposit-with-authorization` | POST | Gasless deposit (EIP-3009). Body: same as deposit + authorization, authorization_selector. Returns tx_hash |
-| `/v3/:chain/deposit-erc721` | POST | Deposit ERC721. Body: same as deposit + token_id |
-| `/v3/:chain/deposit-erc1155` | POST | Deposit ERC1155. Body: same as deposit + token_id |
-
-**Redeem:**
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v3/:chain/redeem` | POST | Redeem a claim link. Body: receiver, sender, escrow, transfer_id, receiver_sig, token. Returns tx_hash |
-| `/v3/:chain/redeem-recovered` | POST | Redeem a recovered link (sender regenerated URL). Body: same as redeem + sender_sig. Returns tx_hash |
-
-**Status & History:**
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v3/:chain/payment-status/transfer/:transfer_id` | GET | Get claim link status by transfer ID |
-| `/v3/:chain/payment-status/transaction/:tx_hash` | GET | Get claim link status by deposit tx hash |
-| `/v3/:chain/payment-status/user-operation/:user_op_hash` | GET | Get claim link status by user operation hash (smart contract wallets) |
-| `/v3/:chain/payment-status/sender/:sender/get-sender-history` | GET | Get sender's claim link history. Query params: only_active, offset, limit |
-
-**Status response** (`claim_link` object): transfer_id, amount, fee_amount, total_amount, token, fee_token, chain_id, sender, expiration, token_type, escrow, version, status (`created` | `depositing` | `deposited` | `redeemed` | `redeeming` | `error` | `refunded` | `refunding` | `cancelled`), encrypted_sender_message, operations (array of: type, timestamp, tx_hash, status, receiver).
-
-**Fee & Limits:**
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v3/:chain/fee` | GET | Get fee for a transfer. Query params: amount, sender, expiration, token_type, transfer_id, token_address. Returns fee_amount, fee_token, total_amount, fee_authorization, min/max transfer amounts |
-| `/v3/:chain/limits` | GET | Get transfer limits. Query params: token_address, token_type. Returns min/max_transfer_amount, min/max_transfer_amount_usd |
-
-**Reporting:**
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/v3/:chain/report/redeemed-deposits` | GET | Get redeemed deposits report. Query params: redeem_blocknumber_from, offset, limit |
-| `/v3/:chain/report/sender/:sender/links-count` | GET | Get links count by sender and status. Query params: token. Returns deposited, redeemed, refunded, total counts |
-
-### Dashboard Endpoints
-
-| Endpoint | Method | Description |
-|----------|--------|-------------|
-| `/dashboard/payment-status/transfer/:transfer_id` | GET | Get Dashboard claim link status. Same response format as P2P status endpoints |
-| `/dashboard/redeem` | POST | Redeem a Dashboard link. Body: receiver, sender, escrow, transfer_id, receiver_sig, token. Returns tx_hash |
-
----
 
 ## Claim Link URL Format
 
-All claim URLs use a hash-fragment structure: `{baseUrl}/#/code?{params}`. The `baseUrl` is configurable — wallets use their own domain.
+All claim URLs use a hash-fragment structure: `{baseUrl}/#/code?{params}`. The `baseUrl` is configurable, wallets can use their own domain.
 
 ### P2P Links
 
