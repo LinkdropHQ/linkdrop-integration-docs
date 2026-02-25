@@ -19,9 +19,9 @@ For a high-level overview of flows, screens, and integration steps, see [wallet-
 **Redeem:**
 
 1. SDK parses the claim URL to extract the claim code and transfer metadata.
-2. SDK calls the P2P API to fetch link details (token, amount, chain, status, etc.).
+2. SDK calls the Linkdrop API to fetch link details (token, amount, chain, status, etc.).
 3. SDK generates a receiver signature from the claim code, proving the receiver possesses the link secret.
-4. SDK calls the API `/redeem` endpoint with the receiver's wallet address and signature.
+4. SDK calls Linkdrop API `/redeem` endpoint with the receiver's wallet address and signature.
 5. Linkdrop's relayer submits the on-chain redeem transaction. The receiver pays no gas.
 
 **Lifecycle:**
@@ -69,10 +69,10 @@ The wallet does not need to implement any of the above. It only needs to support
 
 1. SDK parses the claim URL. Dashboard links are detected automatically by the `src=d` query parameter.
 2. SDK derives a `transferId` from the claim code (`ethers.id(claimCode)` → use as private key → public address).
-3. SDK calls the Dashboard API to fetch link details (token, amount, chain, status, escrow address).
-4. SDK generates a receiver signature from the claim code.
-5. SDK calls the redeem endpoint with the receiver's wallet address and signature.
-6. Linkdrop's relayer submits the on-chain redeem transaction. The receiver pays no gas.
+3. SDK calls the Linkdrop API to fetch link details (token, amount, chain, status, escrow address).
+4. SDK generates a receiver signature using the claim code.
+5. SDK calls the Linkdrop API redeem dashboard link endpoint with the receiver's wallet address and signature.
+6. Linkdrop's relayer submits the onchain redeem transaction. The receiver pays no gas.
 
 The redeem flow is functionally the same as P2P — the SDK handles the API routing and URL parsing differences internally.
 
@@ -224,11 +224,11 @@ For SDK initialization, usage examples, method reference, ClaimLink properties, 
 ## References
 
 - **Integration Overview:** [wallet-integration-overview.md](wallet-integration-overview.md)
-- **Linkdrop Technical Description (blog):** [blog.linkdrop.io/linkdrop-technical-description](https://blog.linkdrop.io/linkdrop-technical-description-2ec43f718924)
 - **SDK repository & docs:** [github.com/LinkdropHQ/linkdrop-sdk](https://github.com/LinkdropHQ/linkdrop-sdk) · [README](https://github.com/LinkdropHQ/linkdrop-sdk/blob/main/README.md) · [npm](https://www.npmjs.com/package/linkdrop-sdk)
+- **API documentation:** [escrow-docs.linkdrop.io](https://escrow-docs.linkdrop.io)
+- **Linkdrop Technical Description (Dashboard Links):** [blog.linkdrop.io/linkdrop-technical-description](https://blog.linkdrop.io/linkdrop-technical-description-2ec43f718924)
 - **P2P contracts:** [github.com/LinkdropHQ/linkdrop-p2p-contracts](https://github.com/LinkdropHQ/linkdrop-p2p-contracts)
 - **Dashboard contracts:** [github.com/LinkdropHQ/linkdrop-contracts](https://github.com/LinkdropHQ/linkdrop-contracts)
-- **API documentation:** [escrow-docs.linkdrop.io](https://escrow-docs.linkdrop.io)
 
 ---
 
